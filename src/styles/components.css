@@ -2700,3 +2700,18 @@ h1:focus-visible {
     display: none;
   }
 }
+
+/* Reports: report types in a responsive grid, filters on one row. */
+.report-type-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
+  gap: var(--space-2);
+}
+
+.report-filters {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: var(--space-3);
+  margin-top: var(--space-4);
+}

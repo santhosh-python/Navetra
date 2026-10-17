@@ -15,7 +15,7 @@ Navetra is an inventory-intelligence web app for essential supplies in clinics, 
 | Recommendations | Ranked list with a disclosed priority breakdown; mark reviewed, snooze, record action |
 | What-if simulator | Demand, delivery delay, early order and transfer scenarios against a baseline; presets; save in session |
 | Analytics | Seven charts built from the same calculations |
-| Reports | Six report types with print layout and CSV export |
+| Reports | Six report types, filterable by location and category, with print layout and CSV export |
 | Settings | Risk thresholds, reorder policy, locations, categories, notifications, display |
 
 ## Quick start

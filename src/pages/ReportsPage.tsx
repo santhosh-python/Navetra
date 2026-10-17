@@ -7,6 +7,7 @@ import { SegmentedControl } from '../components/common/SegmentedControl';
 import { EmptyState, LoadingState } from '../components/common/EmptyState';
 import { Alert } from '../components/common/Alert';
 import { useInventory } from '../hooks/useInventory';
+import { filterRowsByScope } from '../lib/inventoryQuery';
 import { useSettings } from '../hooks/useSettings';
 import { useNotifications } from '../hooks/useNotifications';
 import { buildReport, REPORT_TYPES, reportToCsvRows, type ReportType } from '../lib/reports';
@@ -20,11 +21,20 @@ const WINDOW_OPTIONS = [
 ] as const;
 
 export function ReportsPage() {
-  const { rows, recommendations, historyByItemId, asOfDate, status, errorMessage, isDemoData } = useInventory();
+  const { rows: allRows, recommendations: allRecommendations, historyByItemId, asOfDate, status, errorMessage, isDemoData, locations, categories } = useInventory();
   const { settings } = useSettings();
   const { showToast } = useNotifications();
   const [reportType, setReportType] = useState<ReportType>('inventory-status');
   const [windowDays, setWindowDays] = useState<'7' | '14' | '30'>('14');
+  const [locationFilter, setLocationFilter] = useState('all');
+  const [categoryFilter, setCategoryFilter] = useState('all');
+
+  // The report covers only the chosen location and category. Recommendations are limited to the same items.
+  const rows = useMemo(() => filterRowsByScope(allRows, { location: locationFilter, category: categoryFilter }), [allRows, locationFilter, categoryFilter]);
+  const recommendations = useMemo(() => {
+    const ids = new Set(rows.map((row) => row.item.id));
+    return allRecommendations.filter((recommendation) => ids.has(recommendation.itemId));
+  }, [allRecommendations, rows]);
 
   const table = useMemo(
     () =>
@@ -83,9 +93,9 @@ export function ReportsPage() {
         }
       />
 
-      <div className="grid grid--split">
-        <SectionCard title="Report type" description="Choose a report to preview.">
-          <div role="radiogroup" aria-label="Report type" className="stack-2">
+      <div className="stack-4">
+        <SectionCard title="Report type" description="Choose a report, then limit it to a location or category.">
+          <div role="radiogroup" aria-label="Report type" className="report-type-grid">
             {REPORT_TYPES.map((report) => {
               const checked = report.id === reportType;
               return (
@@ -104,12 +114,38 @@ export function ReportsPage() {
               );
             })}
           </div>
-          {reportType === 'upcoming-replenishment' && (
-            <div className="control-group" style={{ marginTop: 16 }}>
-              <span className="control-group__label">Window</span>
-              <SegmentedControl label="Replenishment window" options={WINDOW_OPTIONS.map((option) => ({ value: option.value, label: option.label }))} value={windowDays} onChange={setWindowDays} />
-            </div>
-          )}
+          <div className="report-filters">
+            <label className="control-group">
+              <span className="control-group__label">Location</span>
+              <select className="select" value={locationFilter} onChange={(event) => setLocationFilter(event.target.value)}>
+                <option value="all">All locations</option>
+                {locations.map((location) => (
+                  <option key={location} value={location}>
+                    {location}
+                  </option>
+                ))}
+              </select>
+            </label>
+            <label className="control-group">
+              <span className="control-group__label">Category</span>
+              <select className="select" value={categoryFilter} onChange={(event) => setCategoryFilter(event.target.value)}>
+                <option value="all">All categories</option>
+                {categories.map((category) => (
+                  <option key={category} value={category}>
+                    {category}
+                  </option>
+                ))}
+              </select>
+            </label>
+            {reportType === 'upcoming-replenishment' && (
+              <div className="control-group">
+                <span className="control-group__label" id="window-label">
+                  Replenishment window
+                </span>
+                <SegmentedControl label="Replenishment window" options={WINDOW_OPTIONS.map((option) => ({ value: option.value, label: option.label }))} value={windowDays} onChange={setWindowDays} />
+              </div>
+            )}
+          </div>
         </SectionCard>
 
         <div>

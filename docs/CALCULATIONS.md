@@ -95,6 +95,7 @@ Ties are broken by earliest stock-out, then by name. These weights are a product
 
 - Criticality scatter: criticality mapped to 1–4, days of stock capped at 30, and a deterministic offset so identical points stay visible.
 - Report CSV exports use raw values. On-screen and printed reports show formatted text.
+- Reports are limited by location and category before the report is built. Recommendations are limited to the same items.
 
 ## Known limits
 
