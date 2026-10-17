@@ -11,6 +11,8 @@
   display: grid;
   grid-template-columns: var(--sidebar-width) minmax(0, 1fr);
   min-height: 100vh;
+  /* Clip stray horizontal overflow (e.g. hidden tooltip bubbles) without making a scroll container. */
+  overflow-x: clip;
 }
 
 .app--sidebar-collapsed {
@@ -226,8 +228,8 @@
 
 .icon-button__dot {
   position: absolute;
-  top: 7px;
-  right: 8px;
+  top: -6px;
+  right: -6px;
   min-width: 16px;
   height: 16px;
   padding: 0 4px;
@@ -665,6 +667,11 @@
   align-items: center;
   flex-wrap: wrap;
   gap: var(--space-2);
+}
+
+.card__actions > *,
+.card__actions .select {
+  max-width: 100%;
 }
 
 .card__footer {
@@ -2662,5 +2669,26 @@ dialog.modal::backdrop {
 @media (min-width: 901px) {
   .topbar__menu-button {
     display: none;
+  }
+}
+
+
+/* Programmatic focus on the page heading after navigation should not draw a ring. */
+h1:focus,
+h1:focus-visible {
+  outline: none;
+}
+
+/* Empty toast region takes no space; on phones the toasts span the screen width. */
+.toast-stack:empty {
+  display: none;
+}
+
+@media (max-width: 600px) {
+  .toast-stack {
+    left: var(--space-4);
+    right: var(--space-4);
+    bottom: var(--space-4);
+    width: auto;
   }
 }

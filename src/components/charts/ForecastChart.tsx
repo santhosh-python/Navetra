@@ -73,7 +73,7 @@ export function ForecastChart({ history, projection, stockOutDate, replenishment
             <ReferenceLine x={stockOutDate} stroke={CHART_COLORS.critical} strokeDasharray="4 3" label={{ value: 'Runs out at current use', position: 'insideTopLeft', fill: CHART_COLORS.critical, fontSize: 11 }} />
           )}
           {dates.has(replenishmentDate) && (
-            <ReferenceLine x={replenishmentDate} stroke={CHART_COLORS.info} strokeDasharray="2 3" label={{ value: 'Replenishment', position: 'insideTopRight', fill: CHART_COLORS.info, fontSize: 11 }} />
+            <ReferenceLine x={replenishmentDate} stroke={CHART_COLORS.info} strokeDasharray="2 3" label={{ value: 'Replenishment', position: 'insideTopRight', fill: CHART_COLORS.info, fontSize: 11, dy: 16 }} />
           )}
           <Area type="monotone" dataKey="projected" fill={CHART_COLORS.accent} fillOpacity={0.08} stroke="none" isAnimationActive={!reduced} connectNulls={false} />
           <Line type="monotone" dataKey="observed" stroke={CHART_COLORS.text} strokeWidth={2} dot={false} isAnimationActive={!reduced} connectNulls={false} />

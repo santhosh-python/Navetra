@@ -80,7 +80,7 @@ Run `npm test`. The suite has two layers:
 - **Pure logic tests** (`tests/*.test.ts`): calculations, scenarios, demo data, CSV parsing and round-trip, validators, the inventory schema, filtering, analytics builders, report builders, notification rules, portfolio summaries and the at-risk trend.
 - **Render test** (`tests/app.render.test.tsx`): mounts the whole app in jsdom and checks each route renders its main heading with no unexpected console errors. It does not test layout or visual appearance.
 
-The suite does not include browser end-to-end tests, accessibility audits or visual regression tests. Those are good next steps once the backend exists.
+The suite does not include browser end-to-end tests, accessibility audits or visual regression tests. A one-off headless-Chromium check was run on every route at desktop and phone widths. It found no console errors, page errors or horizontal overflow. Its scripts are not in the repository. Add automated browser tests once the backend exists.
 
 ## Working in VS Code
 
@@ -101,5 +101,5 @@ The suite does not include browser end-to-end tests, accessibility audits or vis
 - Data is held in memory in the browser. Refreshing the page restores the demo data, except for settings, which are saved in `localStorage`.
 - Excel (`.xlsx`) import is deferred. Only browser-parsed CSV is supported.
 - Recharts is in the Overview chunk, so the first load is large (about 650 kB before gzip). Other pages are loaded on demand.
-- No accessibility audit or visual review has been completed in a real browser yet.
+- The visual review covered headless Chromium screenshots of every route at desktop (1360 px) and phone (390 px) widths. It was a one-off check, not an automated suite. A full accessibility audit has not been done.
 - Platform compatibility beyond the Node version above has not been tested. No claims are made for other architectures.

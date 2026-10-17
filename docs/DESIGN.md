@@ -44,4 +44,6 @@ Animations respect `prefers-reduced-motion`. When it is set, transitions are rem
 
 Built in: semantic headings, labelled controls, keyboard support for the search palette and segmented controls, live regions for toasts, and text alternatives for charts.
 
-Not yet done: a formal audit with a screen reader, a colour-contrast audit of every state, or testing with real users. Treat these as open work.
+Checked: secondary text colours meet WCAG AA on the page background (4.65:1 for `#68717D`). Headless-Chromium screenshots of each route were reviewed at desktop and phone widths.
+
+Not yet done: a formal audit with a screen reader, a contrast audit of every state (including chart colours), or testing with real users. Treat these as open work.
