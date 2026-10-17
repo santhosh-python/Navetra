@@ -106,7 +106,7 @@ export function SimulatorPage() {
     <>
       <PageHeader
         title="What-if simulator"
-        subtitle="Change the assumptions for one item and compare with the current plan. Results are estimates from demo values, not operational outcomes."
+        subtitle="Change the assumptions for one item and compare with the current plan. Results are estimates from local values, not operational outcomes."
       />
 
       <div className="page-toolbar" style={{ marginBottom: 20 }}>

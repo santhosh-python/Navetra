@@ -1,4 +1,4 @@
-import { NavLink } from 'react-router-dom';
+import { NavLink, useLocation } from 'react-router-dom';
 import { ChevronsLeft, ChevronsRight } from 'lucide-react';
 import { NAVIGATION_ITEMS } from '../../app/navigation';
 import { useInventory } from '../../hooks/useInventory';
@@ -12,6 +12,9 @@ interface SidebarProps {
 
 export function Sidebar({ collapsed, onToggleCollapsed, drawerOpen }: SidebarProps) {
   const { summary } = useInventory();
+  const location = useLocation();
+  const isResearchRoute = ['/', '/inventory', '/forecasts', '/recommendations', '/simulator', '/analytics', '/reports', '/research-data']
+    .includes(location.pathname);
   const attentionCount = summary.critical;
 
   return (
@@ -42,7 +45,7 @@ export function Sidebar({ collapsed, onToggleCollapsed, drawerOpen }: SidebarPro
             <NavLink key={item.path} to={item.path} end={item.end} className="nav-link" title={collapsed ? item.label : undefined}>
               <Icon size={18} aria-hidden="true" />
               <span className="nav-link__label">{item.label}</span>
-              {showCount && (
+              {showCount && !isResearchRoute && (
                 <span className="nav-link__count" aria-label={`${attentionCount} critical items`}>
                   {attentionCount}
                 </span>
@@ -52,7 +55,9 @@ export function Sidebar({ collapsed, onToggleCollapsed, drawerOpen }: SidebarPro
         })}
       </nav>
 
-      <div className="sidebar__footer">Synthetic demo data. Not for operational use.</div>
+      <div className="sidebar__footer">
+        {isResearchRoute ? 'Historical research data. Not live inventory.' : 'Local synthetic dataset. Not for operational use.'}
+      </div>
     </aside>
   );
 }

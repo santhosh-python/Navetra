@@ -5,15 +5,14 @@ import { Topbar } from './Topbar';
 import { DemoBanner } from './DemoBanner';
 import { ToastViewport } from '../common/ToastViewport';
 import { useSettings } from '../../hooks/useSettings';
-import { useInventory } from '../../hooks/useInventory';
 
 const SIDEBAR_STORAGE_KEY = 'navetra.sidebarCollapsed';
 
 /** Page frame: sidebar, topbar, demo notice, and the routed page. */
 export function AppShell() {
   const { settings } = useSettings();
-  const { isDemoData } = useInventory();
   const location = useLocation();
+  const isResearchRoute = location.pathname === '/research-data';
   const [collapsed, setCollapsed] = useState<boolean>(() => {
     try {
       return window.localStorage.getItem(SIDEBAR_STORAGE_KEY) === '1';
@@ -62,7 +61,7 @@ export function AppShell() {
       <div className="main">
         <Topbar onOpenMenu={() => setDrawerOpen(true)} />
         <main id="main-content" className="content">
-          {isDemoData && settings.showDemoBanner && <DemoBanner />}
+          {!isResearchRoute && settings.showDemoBanner && <DemoBanner />}
           <Outlet />
         </main>
       </div>

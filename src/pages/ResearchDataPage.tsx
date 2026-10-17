@@ -5,7 +5,11 @@ import { SectionCard } from "../components/common/SectionCard";
 import { PageHeader } from "../components/layout/PageHeader";
 import {
   getResearchProducts,
+  getResearchBacktest,
+  getResearchHealth,
   getResearchSummary,
+  type ResearchBacktest,
+  type ResearchHealth,
   type ResearchProduct,
   type ResearchSummary,
 } from "../services/researchService";
@@ -21,6 +25,8 @@ function formatPercent(value: number): string {
 export function ResearchDataPage() {
   const [summary, setSummary] = useState<ResearchSummary | null>(null);
   const [products, setProducts] = useState<ResearchProduct[]>([]);
+  const [backtest, setBacktest] = useState<ResearchBacktest | null>(null);
+  const [health, setHealth] = useState<ResearchHealth | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [attempt, setAttempt] = useState(0);
@@ -33,14 +39,19 @@ export function ResearchDataPage() {
       setError(null);
 
       try {
-        const [summaryResult, productResult] = await Promise.all([
+        const [summaryResult, productResult, backtestResult, healthResult] =
+          await Promise.all([
           getResearchSummary(),
           getResearchProducts(10),
-        ]);
+          getResearchBacktest(),
+          getResearchHealth(),
+          ]);
 
         if (!cancelled) {
           setSummary(summaryResult);
           setProducts(productResult.items);
+          setBacktest(backtestResult);
+          setHealth(healthResult);
         }
       } catch (cause) {
         if (!cancelled) {
@@ -100,6 +111,13 @@ export function ResearchDataPage() {
 
       {!loading && !error && summary && (
         <>
+          {health && !health.model_loadable && (
+            <Alert tone="error">
+              The research API is reachable, but the trained model is not
+              loadable. Run the documented training command before using model
+              predictions.
+            </Alert>
+          )}
           <div className="grid grid--metrics" style={{ marginTop: 16 }}>
             <MetricCard
               label="Historical records"
@@ -123,6 +141,44 @@ export function ResearchDataPage() {
               tone="critical"
             />
           </div>
+
+          <SectionCard
+            title="Held-out backtest"
+            description={backtest?.methodology ?? "Chronological model evaluation."}
+          >
+            {backtest ? (
+              <>
+                <div className="grid grid--metrics">
+                  <MetricCard
+                    label="Final test evaluations"
+                    value={formatNumber(backtest.evaluations)}
+                    context={`${backtest.test_from} to ${backtest.test_to}`}
+                  />
+                  <MetricCard
+                    label="Stock-rule F1"
+                    value={formatPercent(backtest.stock_based_rule.f1_percent)}
+                    context={`Precision ${formatPercent(backtest.stock_based_rule.precision_percent)} · Recall ${formatPercent(backtest.stock_based_rule.recall_percent)}`}
+                  />
+                  <MetricCard
+                    label="Persistence F1"
+                    value={formatPercent(backtest.previous_month_persistence_baseline.f1_percent)}
+                    context={`Precision ${formatPercent(backtest.previous_month_persistence_baseline.precision_percent)} · Recall ${formatPercent(backtest.previous_month_persistence_baseline.recall_percent)}`}
+                  />
+                  <MetricCard
+                    label="Target"
+                    value="stockout = 1"
+                    context={`${formatNumber(backtest.actual_stockouts)} positive labels`}
+                  />
+                </div>
+                <p className="text-muted" style={{ marginTop: 12 }}>
+                  The final test remains separate from threshold selection. This
+                  page reports historical evidence, not current inventory risk.
+                </p>
+              </>
+            ) : (
+              <p className="text-muted">No backtest result was returned.</p>
+            )}
+          </SectionCard>
 
           <SectionCard
             title="Dataset coverage"

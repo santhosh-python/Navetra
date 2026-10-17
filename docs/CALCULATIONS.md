@@ -1,8 +1,14 @@
 # Calculations and rules
 
-Every number in Navetra comes from the pure functions in `src/lib/`. This page states what each one assumes and what it does not mean. All figures use synthetic demo data.
+This page documents calculations for the legacy synthetic browser demo. The
+primary research routes use values returned by the FastAPI historical API;
+their target definition and evaluation methodology are documented in
+`docs/DATA_AND_API.md`.
 
-**Labelling:** shortage dates, the projection and the scenario results are *rule-based estimates*. They apply simple arithmetic to the recorded stock, usage and delivery dates. They are not machine-learning predictions, and they are not confidence intervals. The priority score is a published points system, not a statistical model.
+**Labelling:** legacy shortage dates, projections and scenario results are
+*rule-based estimates*. The research forecast route separately reports a
+trained model estimate and its threshold; it is not a calibrated operational
+probability or a live inventory decision.
 
 ## Dates and stock timing
 

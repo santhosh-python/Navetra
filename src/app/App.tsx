@@ -32,7 +32,7 @@ function lazyPage(loader: () => Promise<Record<string, ComponentType>>, name: st
 }
 
 /**
- * Route table. Every page sits inside AppShell so the navigation, demo notice and notifications
+ * Route table. Every page sits inside AppShell so navigation, data notices and notifications
  * are always present. BrowserRouter needs the host to serve index.html for unknown paths (see DEVELOPMENT.md).
  */
 export function App() {
@@ -58,4 +58,3 @@ export function App() {
     </AppProviders>
   );
 }
-

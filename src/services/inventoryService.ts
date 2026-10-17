@@ -39,7 +39,7 @@ function createItemId(input: InventoryItemInput): string {
 }
 
 export function getDataSourceLabel(): string {
-  return isBackendConfigured() ? 'Backend API' : 'Demo data (synthetic)';
+  return isBackendConfigured() ? 'Backend API' : 'Local synthetic dataset';
 }
 
 export async function listInventoryItems(): Promise<InventoryItem[]> {

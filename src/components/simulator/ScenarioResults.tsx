@@ -53,7 +53,7 @@ export function ScenarioResults({ item, comparison, asOfDate }: ScenarioResultsP
         {comparison.headline}
       </div>
 
-      <SectionCard title="Baseline and simulated" description={`Compared for ${item.name} as of ${formatShortDate(asOfDate)}. Estimates from demo values, not operational outcomes.`}>
+      <SectionCard title="Baseline and simulated" description={`Compared for ${item.name} as of ${formatShortDate(asOfDate)}. Estimates from local values, not operational outcomes.`}>
         <div className="compare-grid" role="table" aria-label="Baseline and simulated results">
           <div className="compare-grid__head" role="columnheader">
             Measure

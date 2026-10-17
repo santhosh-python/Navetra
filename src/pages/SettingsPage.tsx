@@ -96,9 +96,9 @@ export function SettingsPage() {
     setResetError(null);
     try {
       await resetDemo();
-      showToast('Demo inventory restored to the original synthetic data.');
+      showToast('Local inventory restored to its original synthetic records.');
     } catch (error) {
-      setResetError(error instanceof Error ? error.message : 'The demo data could not be restored.');
+      setResetError(error instanceof Error ? error.message : 'The local data could not be restored.');
     } finally {
       setResetting(false);
     }
@@ -230,7 +230,7 @@ export function SettingsPage() {
                 </div>
                 <label className="check">
                   <input type="checkbox" checked={settings.showDemoBanner} onChange={(event) => updateSettings({ showDemoBanner: event.target.checked })} />
-                  Show the demo data notice on every page
+                  Show the local data notice on every page
                 </label>
               </div>
             </SectionCard>
@@ -244,11 +244,11 @@ export function SettingsPage() {
                 <dt>As-of date</dt>
                 <dd>{formatLongDate(DEMO_AS_OF_DATE)}</dd>
                 <dt>Backend connection</dt>
-                <dd>{isBackendConfigured() ? `Configured: ${getApiBaseUrl()} (endpoints not implemented yet)` : 'Not configured (demo data)'}</dd>
+                <dd>{isBackendConfigured() ? `Configured: ${getApiBaseUrl()} (inventory endpoints unavailable)` : 'Not configured (local synthetic dataset)'}</dd>
               </dl>
               <div className="row row--wrap" style={{ marginTop: 16 }}>
                 <Button icon={<RefreshCw size={14} aria-hidden="true" />} onClick={handleResetDemo} disabled={resetting}>
-                  {resetting ? 'Restoring…' : 'Restore demo inventory'}
+                  {resetting ? 'Restoring…' : 'Restore local inventory'}
                 </Button>
                 <Button variant="ghost" icon={<RotateCcw size={14} aria-hidden="true" />} onClick={() => { resetSettings(); showToast('Settings reset to defaults.', 'info'); }}>
                   Reset settings to defaults
@@ -260,7 +260,7 @@ export function SettingsPage() {
                 </div>
               )}
               <p className="card__footer">
-                Defaults: {DEFAULT_SETTINGS.criticalDaysThreshold} and {DEFAULT_SETTINGS.warningDaysThreshold} days thresholds. Restoring the demo inventory discards items added or edited in this session.
+                Defaults: {DEFAULT_SETTINGS.criticalDaysThreshold} and {DEFAULT_SETTINGS.warningDaysThreshold} days thresholds. Restoring the local inventory discards items added or edited in this session.
               </p>
             </SectionCard>
           </div>

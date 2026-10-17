@@ -163,7 +163,7 @@ export function ReportsPage() {
               <span>As of {formatLongDate(asOfDate)}</span>
               <span>{settings.organizationName}</span>
               <span>{table.rows.length} {table.rows.length === 1 ? 'row' : 'rows'}</span>
-              {isDemoData && <span>Synthetic demo data</span>}
+              {isDemoData && <span>Local synthetic dataset</span>}
             </div>
 
             {table.rows.length === 0 ? (
@@ -197,7 +197,7 @@ export function ReportsPage() {
             )}
 
             <p className="card__footer">
-              Estimates use the rule-based method described in Shortage forecasts. Figures are synthetic demo data, not operational records.
+              Estimates use the rule-based method described in Shortage forecasts. Figures are synthetic records, not operational data.
             </p>
           </article>
         </div>

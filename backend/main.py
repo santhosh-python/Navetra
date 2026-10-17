@@ -4,6 +4,22 @@ from pathlib import Path
 import pandas as pd
 from fastapi import FastAPI, HTTPException, Query
 from fastapi.middleware.cors import CORSMiddleware
+try:
+    from .ml_pipeline import (
+        DEFAULT_MODEL_PATH,
+        FEATURE_COLUMNS,
+        build_feature_frame,
+        build_next_month_features,
+        load_artifact,
+    )
+except ImportError:
+    from ml_pipeline import (  # type: ignore[no-redef]
+        DEFAULT_MODEL_PATH,
+        FEATURE_COLUMNS,
+        build_feature_frame,
+        build_next_month_features,
+        load_artifact,
+    )
 
 ROOT = Path(__file__).resolve().parents[1]
 DATA_PATH = ROOT / "data" / "processed" / "S2_Dhis2Data.csv"
@@ -22,6 +38,7 @@ app.add_middleware(
     allow_origins=[
         "http://localhost:5173",
         "http://127.0.0.1:5173",
+        "http://localhost:5174",
     ],
     allow_credentials=False,
     allow_methods=["GET"],
@@ -77,6 +94,11 @@ def date_text(value) -> str:
     return pd.Timestamp(value).strftime("%Y-%m-%d")
 
 
+@lru_cache(maxsize=1)
+def get_model_artifact():
+    return load_artifact(DEFAULT_MODEL_PATH)
+
+
 def get_series(facility_id: str, product_id: str) -> pd.DataFrame:
     df = get_data()
     subset = df[
@@ -92,6 +114,18 @@ def get_series(facility_id: str, product_id: str) -> pd.DataFrame:
     return subset
 
 
+def get_consecutive_months(series: pd.DataFrame, count: int) -> pd.DataFrame:
+    """Return the latest complete calendar-month window, or an empty frame."""
+    if count < 1 or len(series) < count:
+        return series.iloc[0:0].copy()
+
+    window = series.sort_values("date").tail(count).copy()
+    month_index = window["date"].dt.year * 12 + window["date"].dt.month
+    if not month_index.diff().iloc[1:].eq(1).all():
+        return series.iloc[0:0].copy()
+    return window
+
+
 @app.get("/")
 def root():
     return {
@@ -104,9 +138,24 @@ def root():
 
 @app.get("/health")
 def health():
+    model_available = False
+    model_error = None
+    model_metadata = {}
+    try:
+        model_metadata = get_model_artifact()["metadata"]
+        model_available = True
+    except (FileNotFoundError, ValueError, OSError) as exc:
+        model_error = str(exc)
+
     return {
-        "status": "ok",
+        "status": "ok" if DATA_PATH.is_file() and model_available else "degraded",
         "dataset_file_exists": DATA_PATH.is_file(),
+        "model_artifact_exists": DEFAULT_MODEL_PATH.is_file(),
+        "model_loadable": model_available,
+        "ready": DATA_PATH.is_file() and model_available,
+        "model_error": model_error,
+        "model_version": model_metadata.get("model_version"),
+        "decision_threshold": model_metadata.get("decision_threshold"),
     }
 
 
@@ -241,12 +290,16 @@ def research_forecast(
     series = get_series(facility_id, product_id)
     last = series.iloc[-1]
 
-    recent_usage = (
-        series["consumption"]
-        .tail(6)
-        .dropna()
-        .clip(lower=0)
-    )
+    recent_history = get_consecutive_months(series, count=6)
+    if recent_history.empty:
+        raise HTTPException(
+            status_code=422,
+            detail=(
+                "Six consecutive calendar months of history are required "
+                "for this forecast."
+            ),
+        )
+    recent_usage = recent_history["consumption"].dropna().clip(lower=0)
     if recent_usage.empty:
         raise HTTPException(
             status_code=422,
@@ -283,7 +336,7 @@ def research_forecast(
         "facility_id": facility_id,
         "product_id": product_id,
         "product_name": str(last["name1"]),
-        "method": "six-observation rolling-mean baseline",
+        "method": "six-consecutive-calendar-month rolling-mean baseline",
         "data_context": "Historical research data; this is not a live inventory forecast.",
         "last_observed_date": date_text(last_date),
         "historical_observations": int(len(series)),
@@ -297,5 +350,187 @@ def research_forecast(
             "This simple baseline is not a trained machine-learning model.",
             "No future deliveries are assumed because future orders are not provided.",
             "The source dataset is historical and does not represent current Indian stock.",
+        ],
+    }
+
+
+@app.get("/research/ml-forecast")
+def research_ml_forecast(
+    facility_id: str,
+    product_id: str,
+):
+    """Predict stockout for the next observed calendar month using the trained model."""
+    try:
+        artifact = get_model_artifact()
+    except (FileNotFoundError, ValueError, OSError) as exc:
+        raise HTTPException(status_code=503, detail=str(exc)) from exc
+
+    series = get_series(facility_id, product_id)
+    features = build_next_month_features(series, artifact["mappings"])
+    if features.empty:
+        raise HTTPException(
+            status_code=422,
+            detail=(
+                "Six consecutive calendar months of valid history are required "
+                "for a model prediction."
+            ),
+        )
+
+    model = artifact["model"]
+    probability = float(
+        model.predict_proba(features[FEATURE_COLUMNS])[:, 1][0]
+    )
+    threshold = float(artifact["metadata"]["decision_threshold"])
+    last_observed = pd.Timestamp(series["date"].max())
+    return {
+        "facility_id": facility_id,
+        "product_id": product_id,
+        "product_name": str(series.iloc[-1]["name1"]),
+        "prediction_for_month": date_text(last_observed + pd.DateOffset(months=1)),
+        "last_observed_date": date_text(last_observed),
+        "stockout_probability": round(probability, 4),
+        "stockout_risk": bool(probability >= threshold),
+        "decision_threshold": threshold,
+        "model_version": artifact["metadata"]["model_version"],
+        "data_context": "Historical Sierra Leone research data; not live inventory.",
+        "limitations": [
+            "The score is a model estimate, not a calibrated operational probability.",
+            "The model uses only six prior consecutive calendar months.",
+        ],
+    }
+
+
+@app.get("/research/backtest")
+def research_backtest(
+    test_from: str = Query(default="2023-01-01"),
+    test_to: str = Query(default="2023-11-01"),
+):
+    """Vectorized one-month-ahead evaluation using six prior monthly records."""
+    cutoff = pd.to_datetime(test_from, errors="coerce")
+    test_end = pd.to_datetime(test_to, errors="coerce")
+    if pd.isna(cutoff) or pd.isna(test_end):
+        raise HTTPException(
+            status_code=400,
+            detail=(
+                "test_from and test_to must be valid dates such as "
+                "2023-01-01."
+            ),
+        )
+    if cutoff > test_end:
+        raise HTTPException(
+            status_code=400,
+            detail="test_from must be on or before test_to.",
+        )
+
+    df = get_data().dropna(
+        subset=[
+            "hf_pk", "productID", "date", "stockout",
+            "consumption", "closeBalance",
+        ]
+    ).copy()
+
+    df["month_index"] = df["date"].dt.year * 12 + df["date"].dt.month
+    group_keys = ["hf_pk", "productID"]
+    grouped = df.groupby(group_keys, sort=False)
+
+    df["_previous_stock"] = grouped["closeBalance"].shift(1)
+    df["_previous_stockout"] = grouped["stockout"].shift(1)
+
+    lag_columns = []
+    mask = (
+        df["date"].ge(cutoff)
+        & df["date"].le(test_end)
+        & df["stockout"].isin([0, 1])
+    )
+
+    # Require observations in each of the six immediately preceding months.
+    for lag in range(1, 7):
+        month_col = f"_month_lag_{lag}"
+        consumption_col = f"_consumption_lag_{lag}"
+
+        df[month_col] = grouped["month_index"].shift(lag)
+        df[consumption_col] = grouped["consumption"].shift(lag)
+
+        mask &= (df["month_index"] - df[month_col]).eq(lag)
+        lag_columns.append(consumption_col)
+
+    evaluation = df.loc[mask].copy()
+
+    def calculate_metrics(actual, predicted):
+        actual = actual.astype(bool)
+        predicted = predicted.astype(bool)
+
+        tp = int((actual & predicted).sum())
+        fp = int((~actual & predicted).sum())
+        tn = int((~actual & ~predicted).sum())
+        fn = int((actual & ~predicted).sum())
+        n = len(actual)
+
+        precision = tp / (tp + fp) if tp + fp else 0.0
+        recall = tp / (tp + fn) if tp + fn else 0.0
+        f1 = (
+            2 * precision * recall / (precision + recall)
+            if precision + recall else 0.0
+        )
+
+        return {
+            "n": n,
+            "accuracy_percent": round((tp + tn) / n * 100, 2) if n else None,
+            "precision_percent": round(precision * 100, 2),
+            "recall_percent": round(recall * 100, 2),
+            "f1_percent": round(f1 * 100, 2),
+            "true_positives": tp,
+            "false_positives": fp,
+            "true_negatives": tn,
+            "false_negatives": fn,
+        }
+
+    if evaluation.empty:
+        return {
+            "test_from": cutoff.strftime("%Y-%m-%d"),
+            "test_to": test_end.strftime("%Y-%m-%d"),
+            "evaluations": 0,
+            "message": "No eligible consecutive monthly records in the test period.",
+        }
+
+    previous_six = evaluation[lag_columns].clip(lower=0)
+    predicted_demand = previous_six.mean(axis=1)
+
+    # Baseline A: previous closing stock minus mean consumption from prior months.
+    rule_prediction = (
+        evaluation["_previous_stock"].clip(lower=0) - predicted_demand
+    ).le(0)
+
+    # Baseline B: repeat the previous month's stockout status.
+    persistence_prediction = evaluation["_previous_stockout"].eq(1)
+    actual = evaluation["stockout"].eq(1)
+
+    dates = sorted(evaluation["date"].dt.strftime("%Y-%m-%d").unique())
+    series_count = evaluation[group_keys].drop_duplicates().shape[0]
+
+    return {
+        "dataset": "S2_Dhis2Data.csv",
+        "data_context": "Historical Sierra Leone research data, not live stock.",
+        "test_from": cutoff.strftime("%Y-%m-%d"),
+        "test_to": dates[-1],
+        "evaluation_months": dates,
+        "eligible_facility_product_series": int(series_count),
+        "evaluations": int(len(evaluation)),
+        "actual_stockouts": int(actual.sum()),
+        "actual_stockout_rate_percent": round(float(actual.mean() * 100), 2),
+        "target_definition": "The source dataset's stockout flag equals 1.",
+        "stock_based_rule": calculate_metrics(actual, rule_prediction),
+        "previous_month_persistence_baseline": calculate_metrics(
+            actual, persistence_prediction
+        ),
+        "methodology": (
+            "One-month-ahead test using six prior consecutive monthly records. "
+            "The final test window is bounded by test_from and test_to. "
+            "No future receipt information is used in either prediction."
+        ),
+        "limitations": [
+            "Only series with complete consecutive monthly observations are tested.",
+            "Future receipts are not known to the forecasting rule.",
+            "Results do not establish accuracy for live Indian inventory.",
         ],
     }
