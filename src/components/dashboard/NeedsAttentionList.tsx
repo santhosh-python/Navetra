@@ -1,5 +1,7 @@
 import { Link } from 'react-router-dom';
-import { Check, ArrowRight, CircleCheck } from 'lucide-react';
+import { useState } from 'react';
+import { Check, ArrowRight, CircleCheck, Phone } from 'lucide-react';
+import { RecordActionDialog, type ActionTarget } from '../recommendations/RecordActionDialog';
 import { useInventory } from '../../hooks/useInventory';
 import { useActivity } from '../../hooks/useActivity';
 import { isInActiveQueue } from '../../lib/recommendationStatus';
@@ -10,17 +12,29 @@ import { Button, buttonClasses } from '../common/Button';
 import { EmptyState } from '../common/EmptyState';
 
 /** Top items from the ranked recommendations, excluding snoozed ones. Uses the same ranking as the Recommendations page. */
-export function NeedsAttentionList({ limit = 5 }: { limit?: number }) {
+interface NeedsAttentionListProps {
+  limit?: number;
+  /** When given, only these items are listed (used by the Overview location and category filters). */
+  itemIds?: string[];
+}
+
+export function NeedsAttentionList({ limit = 5, itemIds }: NeedsAttentionListProps) {
   const { recommendations, asOfDate } = useInventory();
   const { getStatus, setReviewed } = useActivity();
+  const [supplierTarget, setSupplierTarget] = useState<ActionTarget | null>(null);
+  const scopeIds = itemIds ? new Set(itemIds) : null;
 
-  const queue = recommendations.filter((recommendation) => isInActiveQueue(getStatus(recommendation.itemId), asOfDate)).slice(0, limit);
+  const queue = recommendations
+    .filter((recommendation) => (scopeIds ? scopeIds.has(recommendation.itemId) : true))
+    .filter((recommendation) => isInActiveQueue(getStatus(recommendation.itemId), asOfDate))
+    .slice(0, limit);
 
   if (queue.length === 0) {
     return <EmptyState compact icon={<CircleCheck size={20} aria-hidden="true" />} title="Nothing needs attention" description="No critical or warning items under the current thresholds, or all have been snoozed." />;
   }
 
   return (
+    <>
     <ol className="attention-list" style={{ listStyle: 'none', margin: 0, padding: 0 }} aria-label="Items that need attention, most urgent first">
       {queue.map((recommendation, index) => {
         const status = getStatus(recommendation.itemId);
@@ -61,10 +75,26 @@ export function NeedsAttentionList({ limit = 5 }: { limit?: number }) {
               <Button size="sm" variant="ghost" icon={<Check size={14} aria-hidden="true" />} onClick={() => setReviewed(recommendation.itemId, !status.reviewed)}>
                 {status.reviewed ? 'Undo review' : 'Mark reviewed'}
               </Button>
+              <Button
+                size="sm"
+                variant="ghost"
+                icon={<Phone size={14} aria-hidden="true" />}
+                title="Records a supplier contact you made outside Navetra. Navetra does not contact suppliers."
+                onClick={() => setSupplierTarget({ itemId: recommendation.itemId, itemName: recommendation.itemName })}
+              >
+                Record supplier contact
+              </Button>
             </div>
           </li>
         );
       })}
     </ol>
+      <RecordActionDialog
+        open={supplierTarget !== null}
+        target={supplierTarget}
+        defaultAction="Supplier contacted by phone or email (outside Navetra)"
+        onClose={() => setSupplierTarget(null)}
+      />
+    </>
   );
 }

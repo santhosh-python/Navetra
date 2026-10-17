@@ -90,3 +90,15 @@ export function buildUniqueOptions(items: InventoryItem[], selector: (item: Inve
 function compareNumbers(a: number, b: number): number {
   return a === b ? 0 : a < b ? -1 : 1;
 }
+
+/** Location and category scope used by the Overview page. 'all' means no restriction. */
+export interface OverviewScope {
+  location: string;
+  category: string;
+}
+
+export function filterRowsByScope(rows: InventoryRow[], scope: OverviewScope): InventoryRow[] {
+  return rows.filter(
+    ({ item }) => (scope.location === 'all' || item.location === scope.location) && (scope.category === 'all' || item.category === scope.category),
+  );
+}

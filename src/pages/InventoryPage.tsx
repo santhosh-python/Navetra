@@ -1,4 +1,5 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { Download, Plus, Upload, X } from 'lucide-react';
 import { PageHeader } from '../components/layout/PageHeader';
 import { SectionCard } from '../components/common/SectionCard';
@@ -55,6 +56,17 @@ export function InventoryPage() {
   const [formOpen, setFormOpen] = useState(false);
   const [editingItem, setEditingItem] = useState<InventoryItem | null>(null);
   const [importOpen, setImportOpen] = useState(false);
+  const [searchParams, setSearchParams] = useSearchParams();
+
+  // The top bar's "Import CSV" link opens the import dialog directly: /inventory?import=1
+  useEffect(() => {
+    if (searchParams.get('import') === '1') {
+      setImportOpen(true);
+      const next = new URLSearchParams(searchParams);
+      next.delete('import');
+      setSearchParams(next, { replace: true });
+    }
+  }, [searchParams, setSearchParams]);
   const [actionError, setActionError] = useState<string | null>(null);
 
   const updateQuery = (patch: Partial<InventoryQuery>) => {

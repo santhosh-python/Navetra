@@ -2692,3 +2692,11 @@ h1:focus-visible {
     width: auto;
   }
 }
+
+/* Top bar labels that collapse on phones to leave room for the actions. */
+@media (max-width: 600px) {
+  .topbar__org-name,
+  .topbar__upload-label {
+    display: none;
+  }
+}

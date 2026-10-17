@@ -1,8 +1,10 @@
 import { useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { AlertTriangle, Layers, OctagonAlert, Wallet } from 'lucide-react';
+import { AlertTriangle, Layers, OctagonAlert, RefreshCw, Wallet } from 'lucide-react';
 import { useInventory } from '../hooks/useInventory';
 import { useSettings } from '../hooks/useSettings';
+import { useNotifications } from '../hooks/useNotifications';
+import { SegmentedControl } from '../components/common/SegmentedControl';
 import { PageHeader } from '../components/layout/PageHeader';
 import { MetricCard } from '../components/common/MetricCard';
 import { SectionCard } from '../components/common/SectionCard';
@@ -15,19 +17,32 @@ import { StockOutTimeline } from '../components/charts/StockOutTimeline';
 import { ConsumptionStockChart } from '../components/charts/ConsumptionStockChart';
 import { AtRiskTrendChart } from '../components/charts/AtRiskTrendChart';
 import { NeedsAttentionList } from '../components/dashboard/NeedsAttentionList';
-import { buildAtRiskTrend, countByRisk } from '../lib/portfolio';
+import { buildAtRiskTrend, countByRisk, summariseRisk } from '../lib/portfolio';
 import { HISTORY_DAYS } from '../data/demoHistory';
-import { sortInventoryRows, type InventoryRow } from '../lib/inventoryQuery';
+import { filterRowsByScope, sortInventoryRows, type InventoryRow } from '../lib/inventoryQuery';
 import { formatCurrency, formatDailyRate, formatDecimal, formatQuantity, formatWholeDaysRemaining } from '../lib/formatters';
 import { formatLongDate, formatShortDate } from '../lib/dates';
 import type { RiskLevel } from '../types/inventory';
 import { RISK_LABELS } from '../lib/riskClassification';
 
 export function OverviewPage() {
-  const { rows, summary, items, historyByItemId, asOfDate, status, errorMessage, isDemoData } = useInventory();
+  const { rows: allRows, reload, locations, categories, historyByItemId, asOfDate, status, errorMessage, isDemoData, } = useInventory();
   const { settings, riskThresholds } = useSettings();
+  const { showToast } = useNotifications();
   const [riskFilter, setRiskFilter] = useState<RiskLevel | 'all'>('all');
   const [consumptionItemId, setConsumptionItemId] = useState<string | null>(null);
+  const [rangeDays, setRangeDays] = useState<'7' | '14' | '30'>('30');
+  const [locationFilter, setLocationFilter] = useState('all');
+  const [categoryFilter, setCategoryFilter] = useState('all');
+  const [refreshing, setRefreshing] = useState(false);
+
+  // Every figure on this page is calculated from the scoped rows, so the KPIs, chart and list always agree.
+  const rows = useMemo(() => filterRowsByScope(allRows, { location: locationFilter, category: categoryFilter }), [allRows, locationFilter, categoryFilter]);
+  const summary = useMemo(() => summariseRisk(rows), [rows]);
+  const scopedItemIds = useMemo(() => rows.map((row) => row.item.id), [rows]);
+  const scopedItems = useMemo(() => rows.map((row) => row.item), [rows]);
+  const items = scopedItems;
+  const hasScope = locationFilter !== 'all' || categoryFilter !== 'all';
 
   const urgentRows = useMemo(() => sortInventoryRows(rows, 'urgency', 'asc'), [rows]);
   const filteredRows: InventoryRow[] = useMemo(
@@ -44,6 +59,20 @@ export function OverviewPage() {
   // Trend index 30 is today (first projected day); index 23 is seven days earlier (last 7 observed days).
   const todayCount = trend[HISTORY_DAYS]?.count ?? 0;
   const weekAgoCount = trend[HISTORY_DAYS - 7]?.count ?? 0;
+  // The date-range selector shows the last N observed days followed by the projection.
+  const visibleTrend = useMemo(() => trend.slice(HISTORY_DAYS - Number(rangeDays)), [trend, rangeDays]);
+
+  const handleRefresh = async () => {
+    setRefreshing(true);
+    try {
+      await reload();
+      showToast('Data reloaded from the current source.');
+    } catch (error) {
+      showToast(error instanceof Error ? error.message : 'The data could not be reloaded.', 'error');
+    } finally {
+      setRefreshing(false);
+    }
+  };
 
   if (status === 'loading') {
     return (
@@ -75,6 +104,9 @@ export function OverviewPage() {
         subtitle={`Stock position as of ${formatLongDate(asOfDate)} for ${settings.organizationName}. ${isDemoData ? 'Synthetic demo data.' : ''}`}
         actions={
           <>
+            <Button icon={<RefreshCw size={15} aria-hidden="true" />} onClick={handleRefresh} disabled={refreshing}>
+              {refreshing ? 'Refreshing…' : 'Refresh data'}
+            </Button>
             <Link className={buttonClasses({ variant: 'secondary' })} to="/recommendations">
               Recommendations
             </Link>
@@ -84,6 +116,51 @@ export function OverviewPage() {
           </>
         }
       />
+
+      <div className="row row--wrap" style={{ marginBottom: 16, gap: 12, alignItems: 'flex-end' }} role="group" aria-label="Overview filters">
+        <div className="control-group">
+          <span className="control-group__label" id="range-label">
+            Trend window
+          </span>
+          <SegmentedControl
+            label="Trend window"
+            options={[
+              { value: '7', label: '7 days' },
+              { value: '14', label: '14 days' },
+              { value: '30', label: '30 days' },
+            ]}
+            value={rangeDays}
+            onChange={setRangeDays}
+          />
+        </div>
+        <label className="control-group" style={{ minWidth: 180 }}>
+          <span className="control-group__label">Location</span>
+          <select className="select" value={locationFilter} onChange={(event) => setLocationFilter(event.target.value)}>
+            <option value="all">All locations</option>
+            {locations.map((location) => (
+              <option key={location} value={location}>
+                {location}
+              </option>
+            ))}
+          </select>
+        </label>
+        <label className="control-group" style={{ minWidth: 180 }}>
+          <span className="control-group__label">Category</span>
+          <select className="select" value={categoryFilter} onChange={(event) => setCategoryFilter(event.target.value)}>
+            <option value="all">All categories</option>
+            {categories.map((category) => (
+              <option key={category} value={category}>
+                {category}
+              </option>
+            ))}
+          </select>
+        </label>
+        {hasScope && (
+          <Button variant="ghost" size="sm" onClick={() => { setLocationFilter('all'); setCategoryFilter('all'); }}>
+            Clear filters
+          </Button>
+        )}
+      </div>
 
       <div className="grid grid--metrics">
         <MetricCard label="Items tracked" value={summary.total} icon={<Layers size={16} aria-hidden="true" />} context={`${summary.critical} critical · ${summary.warning} warning · ${summary.safe} safe`} />
@@ -155,10 +232,10 @@ export function OverviewPage() {
 
         <SectionCard
           title="Items at warning level or below"
-          description={`Count per day: ${riskThresholds.warningDays} days of stock or fewer. Observed, then a rule-based estimate.`}
+          description={`Count per day for the last ${rangeDays} days: ${riskThresholds.warningDays} days of stock or fewer. Observed, then a rule-based estimate.`}
           className="span-6"
         >
-          <AtRiskTrendChart points={trend} asOfDate={asOfDate} warningDays={riskThresholds.warningDays} />
+          <AtRiskTrendChart points={visibleTrend} asOfDate={asOfDate} warningDays={riskThresholds.warningDays} />
         </SectionCard>
 
         <SectionCard
@@ -171,7 +248,7 @@ export function OverviewPage() {
             </Link>
           }
         >
-          <NeedsAttentionList limit={5} />
+          <NeedsAttentionList limit={5} itemIds={scopedItemIds} />
         </SectionCard>
 
         <SectionCard

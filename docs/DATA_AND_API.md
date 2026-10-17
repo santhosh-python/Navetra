@@ -28,6 +28,8 @@ Rules, all in `src/lib/inventorySchema.ts` and `src/lib/validators.ts`:
 - Nothing is reported as imported until every row passes. Invalid rows are listed with line numbers and messages.
 - The same validation runs in the add/edit form, so both paths accept and reject the same data.
 - The file size limit is 2 MB.
+- The import dialog offers two downloads: an empty template with the headers, and a sample file of the synthetic demo items (`navetra-sample-inventory-synthetic.csv`). The sample is generated from the same code as the export, so it always matches the current format.
+- The top bar's "Import CSV" link opens the import dialog directly (`/inventory?import=1`).
 
 The export (`buildInventoryCsv`) uses the same headers, so an exported file can be re-imported. A test checks this round trip for the demo data.
 

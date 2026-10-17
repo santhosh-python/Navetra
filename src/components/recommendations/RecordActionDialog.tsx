@@ -25,18 +25,20 @@ interface RecordActionDialogProps {
   open: boolean;
   onClose: () => void;
   target: ActionTarget | null;
+  /** Action selected when the dialog opens. Must be one of RECORDABLE_ACTIONS. */
+  defaultAction?: (typeof RECORDABLE_ACTIONS)[number];
 }
 
-export function RecordActionDialog({ open, onClose, target }: RecordActionDialogProps) {
+export function RecordActionDialog({ open, onClose, target, defaultAction = RECORDABLE_ACTIONS[0] }: RecordActionDialogProps) {
   const { recordAction } = useActivity();
   const { showToast } = useNotifications();
-  const [actionTaken, setActionTaken] = useState<string>(RECORDABLE_ACTIONS[0]);
+  const [actionTaken, setActionTaken] = useState<string>(defaultAction);
   const [note, setNote] = useState('');
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     if (open) {
-      setActionTaken(RECORDABLE_ACTIONS[0]);
+      setActionTaken(defaultAction);
       setNote('');
       setError(null);
     }

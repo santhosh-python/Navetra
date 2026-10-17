@@ -18,6 +18,15 @@ beforeAll(() => {
         dispatchEvent: () => false,
       }) as MediaQueryList;
   }
+  // jsdom does not implement the native dialog methods that Modal uses. A simple stand-in sets the open attribute.
+  if (typeof HTMLDialogElement !== 'undefined' && !HTMLDialogElement.prototype.showModal) {
+    HTMLDialogElement.prototype.showModal = function showModal(this: HTMLDialogElement) {
+      this.setAttribute('open', '');
+    };
+    HTMLDialogElement.prototype.close = function close(this: HTMLDialogElement) {
+      this.removeAttribute('open');
+    };
+  }
   if (!window.ResizeObserver) {
     window.ResizeObserver = class {
       observe() {}
@@ -90,5 +99,41 @@ describe('every page renders with the demo data', () => {
       const saved = JSON.parse(window.localStorage.getItem('navetra.settings.v1') ?? '{}') as { criticalDaysThreshold?: number };
       expect(saved.criticalDaysThreshold).toBe(5);
     });
+  });
+
+  it('filters the overview by location and clears the filter', async () => {
+    window.history.pushState({}, '', '/');
+    render(<App />);
+    const locationSelect = (await screen.findByLabelText(/^location$/i)) as HTMLSelectElement;
+    const firstLocation = Array.from(locationSelect.options).find((option) => option.value !== 'all')?.value;
+    expect(firstLocation).toBeTruthy();
+    fireEvent.change(locationSelect, { target: { value: firstLocation } });
+    expect(await screen.findByRole('button', { name: /clear filters/i })).toBeTruthy();
+    fireEvent.click(screen.getByRole('button', { name: /clear filters/i }));
+    await waitFor(() => expect(screen.queryByRole('button', { name: /clear filters/i })).toBeNull());
+  });
+
+  it('opens the account menu with working items', async () => {
+    window.history.pushState({}, '', '/');
+    render(<App />);
+    fireEvent.click(await screen.findByRole('button', { name: /account menu/i }));
+    expect(await screen.findByRole('menuitem', { name: /^settings$/i })).toBeTruthy();
+  });
+
+  it('opens the import dialog from the import link', async () => {
+    window.history.pushState({}, '', '/inventory?import=1');
+    render(<App />);
+    expect(await screen.findByRole('dialog', {}, { timeout: 4000 })).toBeTruthy();
+  });
+
+  it('records a supplier contact only as a note, through a dialog', async () => {
+    window.history.pushState({}, '', '/');
+    render(<App />);
+    const buttons = await screen.findAllByRole('button', { name: /record supplier contact/i });
+    expect(buttons.length).toBeGreaterThan(0);
+    fireEvent.click(buttons[0]);
+    expect(await screen.findByRole('dialog', { name: /record an action/i })).toBeTruthy();
+    // The dialog opens with the supplier-contact option already selected.
+    expect(screen.getByDisplayValue(/supplier contacted by phone or email/i)).toBeTruthy();
   });
 });

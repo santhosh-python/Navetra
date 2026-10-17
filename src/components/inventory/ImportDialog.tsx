@@ -7,6 +7,7 @@ import { Badge } from '../common/StatusBadge';
 import { parseCsvText, stringifyCsv, downloadTextFile, type ParsedCsv } from '../../lib/csv';
 import { INVENTORY_FIELDS, REQUIRED_CSV_HEADERS, type InventoryFieldKey } from '../../lib/inventorySchema';
 import { buildInventoryCsv } from '../../lib/inventoryExport';
+import { DEMO_ITEMS } from '../../data/demoInventory';
 import { createColumnMapping, validateImportRows, type ColumnMapping } from '../../lib/validators';
 import { useInventory } from '../../hooks/useInventory';
 import { useNotifications } from '../../hooks/useNotifications';
@@ -90,6 +91,12 @@ export function ImportDialog({ open, onClose }: ImportDialogProps) {
     downloadTextFile('navetra-inventory-template.csv', stringifyCsv(headers, []));
   };
 
+  /** Synthetic sample rows in the import format, so a user can try the import before preparing their own file. */
+  const downloadSample = () => {
+    const sample = buildInventoryCsv(DEMO_ITEMS);
+    downloadTextFile('navetra-sample-inventory-synthetic.csv', stringifyCsv(sample.headers, sample.rows));
+  };
+
   const exportCurrent = () => {
     const csv = buildInventoryCsv(items);
     downloadTextFile('navetra-inventory-current-items.csv', stringifyCsv(csv.headers, csv.rows));
@@ -137,6 +144,11 @@ export function ImportDialog({ open, onClose }: ImportDialogProps) {
           {!parsed && (
             <Button icon={<Download size={15} aria-hidden="true" />} onClick={downloadTemplate}>
               Download template
+            </Button>
+          )}
+          {!parsed && (
+            <Button icon={<Download size={15} aria-hidden="true" />} onClick={downloadSample}>
+              Download sample data
             </Button>
           )}
           <Button variant="primary" disabled={!canImport} onClick={handleImport}>

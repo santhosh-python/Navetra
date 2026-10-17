@@ -8,7 +8,7 @@ Navetra is an inventory-intelligence web app for essential supplies in clinics, 
 
 | Page | Purpose |
 | --- | --- |
-| Overview | Four summary cards, risk donut that filters a table, stock-out timeline, consumption vs stock, at-risk trend, "Needs attention" list |
+| Overview | Trend window, location and category filters, refresh; four summary cards; risk donut that filters a table; stock-out timeline; consumption vs stock; at-risk trend; "Needs attention" list with a record-supplier-contact note |
 | Inventory | Search, filters, sorting, paging, bulk actions, add/edit, CSV export, CSV import with row-by-row checks |
 | Item detail | Tabs for Overview, Forecast, Deliveries and Activity |
 | Shortage forecasts | Depletion chart, plain-language explanation, stated assumptions |
