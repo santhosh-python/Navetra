@@ -1,0 +1,19 @@
+id,sku,name,category,location,unit,currentStock,averageDailyUsage,minimumStock,safetyStock,supplierName,leadTimeDays,expectedDeliveryDate,incomingQuantity,unitCost,criticality
+demo-ors-001,MED-ORS-001,Oral rehydration salts,Essential medicines,Hyderabad Central,cartons,24,6,20,12,Deccan Medical Supply,6,2026-10-26,24,480,critical
+demo-gloves-002,PPE-GLV-M-002,"Examination gloves, medium",Medical consumables,Hyderabad Central,boxes,80,18,40,20,CareFirst Distributors,4,2026-10-20,60,250,high
+demo-gauze-003,MED-GAU-003,Sterile gauze packs,Medical consumables,Hyderabad Central,packs,32,9,25,10,MedSupply India,7,2026-10-26,0,145,critical
+demo-saline-004,IV-NS-500-004,"Normal saline, 500 ml",Medical consumables,Secunderabad Clinic,cases,42,8,30,15,Deccan Medical Supply,5,2026-10-22,48,420,critical
+demo-malaria-005,LAB-RDT-MAL-005,Rapid malaria test kits,Laboratory supplies,Hyderabad Central,kits,55,5,18,8,Aster Lab Partners,10,2026-10-30,60,620,high
+demo-syringe-006,MED-SYR-5ML-006,"Sterile syringes, 5 ml",Medical consumables,Secunderabad Clinic,boxes,115,12,45,20,CareFirst Distributors,7,2026-10-21,100,310,high
+demo-paracetamol-007,MED-PAR-500-007,"Paracetamol, 500 mg",Essential medicines,Hyderabad Central,bottles,180,12,50,20,Sanjeevani Pharma,5,2026-10-25,100,86,medium
+demo-salbutamol-008,MED-SAL-008,Salbutamol inhalers,Essential medicines,Warangal Hub,inhalers,14,3,12,6,Sanjeevani Pharma,9,2026-10-29,24,190,critical
+demo-insulin-009,MED-INS-10ML-009,"Human insulin, 10 ml",Essential medicines,Secunderabad Clinic,vials,36,4,20,10,Sanjeevani Pharma,6,2026-10-22,40,520,critical
+demo-tubes-010,LAB-TUBE-010,Vacutainer specimen tubes,Laboratory supplies,Hyderabad Central,racks,22,2,10,5,Aster Lab Partners,8,,0,780,medium
+demo-covid-011,LAB-RDT-COV-011,Rapid respiratory test kits,Laboratory supplies,Warangal Hub,kits,18,4,12,6,Aster Lab Partners,7,2026-10-26,50,540,high
+demo-water-012,KIT-WTR-012,Bottled drinking water,Food and kitchen,Warangal Hub,cases,60,12,30,15,BlueRock Wholesale,2,2026-10-19,120,210,high
+demo-rice-013,KIT-RICE-25-013,"Rice, 25 kg bags",Food and kitchen,Hyderabad Central,bags,44,3,20,10,BlueRock Wholesale,5,2026-10-23,40,1340,medium
+demo-disinfectant-014,SAN-DIS-5L-014,"Surface disinfectant, 5 L",Cleaning and sanitation,Hyderabad Central,canisters,20,4,12,6,CleanCare Logistics,4,2026-10-25,20,680,high
+demo-chlorine-015,SAN-CHL-015,Water-purification chlorine tablets,Cleaning and sanitation,Secunderabad Clinic,bottles,9,2,10,4,CleanCare Logistics,6,,0,155,high
+demo-dressings-016,EMR-DRESS-016,First-aid dressing kits,Emergency supplies,Warangal Hub,kits,28,3,16,8,MedSupply India,5,2026-10-20,30,360,high
+demo-oxygen-017,EMR-OXY-MASK-017,Oxygen masks,Emergency supplies,Hyderabad Central,packs,35,9,25,12,CareFirst Distributors,5,,0,95,critical
+demo-sanitizer-018,SAN-HAND-500-018,"Hand sanitizer, 500 ml",Cleaning and sanitation,Secunderabad Clinic,bottles,75,7,30,12,CleanCare Logistics,4,2026-10-21,50,165,medium

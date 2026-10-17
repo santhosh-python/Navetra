@@ -1,0 +1,66 @@
+:root {
+  color-scheme: light;
+
+  --color-canvas: #f7f8fa;
+  --color-surface: #ffffff;
+  --color-surface-soft: #fcfcfd;
+  --color-surface-muted: #f1f3f5;
+  --color-text: #191d23;
+  --color-text-muted: #68717d;
+  --color-text-subtle: #87909a;
+  --color-border: #e6e9ed;
+  --color-border-strong: #d5dae1;
+  --color-brand: #d97732;
+  --color-brand-strong: #bd6426;
+  --color-brand-soft: #fff3e9;
+  --color-focus: #3978b7;
+  --color-danger: #c83d43;
+  --color-success: #278568;
+  --color-info: #3978b7;
+
+  --color-risk-critical: #c83d43;
+  --color-risk-critical-bg: #fff0f0;
+  --color-risk-high: #c26a24;
+  --color-risk-high-bg: #fff4e9;
+  --color-risk-medium: #a87511;
+  --color-risk-medium-bg: #fff7e3;
+  --color-risk-low: #278568;
+  --color-risk-low-bg: #eaf6f1;
+  --color-risk-safe: #278568;
+  --color-risk-safe-bg: #eaf6f1;
+  --color-neutral-bg: #f1f3f5;
+
+  --color-chart-critical: #c83d43;
+  --color-chart-warning: #d99a25;
+  --color-chart-safe: #278568;
+  --color-chart-1: #d97732;
+  --color-chart-2: #3978b7;
+  --color-chart-3: #6c79a8;
+  --color-chart-4: #6c9b8c;
+  --color-chart-grid: #edf0f3;
+
+  --font-family-sans: Inter, "SF Pro Display", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --font-size-caption: 0.75rem;
+  --font-size-small: 0.8125rem;
+  --font-size-body: 0.9375rem;
+  --font-size-heading: clamp(1.875rem, 2.1vw, 2.125rem);
+  --line-height-body: 1.5;
+
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --space-5: 1.25rem;
+  --space-6: 1.5rem;
+  --space-8: 2rem;
+  --space-10: 2.5rem;
+  --space-12: 3rem;
+
+  --radius-small: 0.5rem;
+  --radius-medium: 0.75rem;
+  --radius-large: 0.875rem;
+  --radius-pill: 999px;
+  --shadow-subtle: 0 1px 2px rgb(23 32 43 / 4%);
+  --shadow-popover: 0 16px 42px rgb(23 32 43 / 12%);
+  --shadow-dialog: 0 24px 64px rgb(23 32 43 / 18%);
+}

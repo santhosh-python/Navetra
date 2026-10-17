@@ -218,3 +218,14 @@ __marimo__/
 
 # Streamlit
 .streamlit/secrets.toml
+
+# JavaScript / Vite
+node_modules/
+.vite/
+coverage/
+*.tsbuildinfo
+
+# Local configuration (keep the documented example files)
+.env
+.env.*
+!.env.example
