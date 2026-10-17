@@ -1,4 +1,4 @@
-import { Suspense, lazy, type ComponentType, type ReactElement } from 'react';
+﻿import { Suspense, lazy, type ComponentType, type ReactElement } from 'react';
 import { BrowserRouter, Route, Routes } from 'react-router-dom';
 import { AppProviders } from './providers';
 import { AppShell } from '../components/layout/AppShell';
@@ -15,6 +15,7 @@ const SimulatorPage = lazyPage(() => import('../pages/SimulatorPage'), 'Simulato
 const AnalyticsPage = lazyPage(() => import('../pages/AnalyticsPage'), 'AnalyticsPage');
 const ReportsPage = lazyPage(() => import('../pages/ReportsPage'), 'ReportsPage');
 const SettingsPage = lazyPage(() => import('../pages/SettingsPage'), 'SettingsPage');
+const ResearchDataPage = lazyPage(() => import('../pages/ResearchDataPage'), 'ResearchDataPage');
 
 function lazyPage(loader: () => Promise<Record<string, ComponentType>>, name: string) {
   const Component = lazy(async () => {
@@ -49,6 +50,7 @@ export function App() {
             <Route path="analytics" element={<AnalyticsPage />} />
             <Route path="reports" element={<ReportsPage />} />
             <Route path="settings" element={<SettingsPage />} />
+            <Route path="research-data" element={<ResearchDataPage />} />
             <Route path="*" element={<NotFoundPage />} />
           </Route>
         </Routes>
@@ -56,3 +58,4 @@ export function App() {
     </AppProviders>
   );
 }
+

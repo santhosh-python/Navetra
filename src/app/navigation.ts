@@ -1,5 +1,5 @@
-import type { LucideIcon } from 'lucide-react';
-import { BarChart3, FileText, LayoutDashboard, ListChecks, Package, Settings, SlidersHorizontal, TrendingDown } from 'lucide-react';
+﻿import type { LucideIcon } from 'lucide-react';
+import { BarChart3, Database, FileText, LayoutDashboard, ListChecks, Package, Settings, SlidersHorizontal, TrendingDown } from 'lucide-react';
 
 export interface NavigationItem {
   path: string;
@@ -17,6 +17,8 @@ export const NAVIGATION_ITEMS: NavigationItem[] = [
   { path: '/recommendations', label: 'Recommendations', icon: ListChecks },
   { path: '/simulator', label: 'What-if simulator', icon: SlidersHorizontal },
   { path: '/analytics', label: 'Analytics', icon: BarChart3 },
+  { path: '/research-data', label: 'Research data', icon: Database },
   { path: '/reports', label: 'Reports', icon: FileText },
   { path: '/settings', label: 'Settings', icon: Settings },
 ];
+
