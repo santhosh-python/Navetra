@@ -153,6 +153,7 @@ activemq-data/
 .env
 .envrc
 .venv
+backend/artifacts/
 env/
 venv/
 ENV/
@@ -239,3 +240,14 @@ coverage/
 # keeps its calculation modules in src/lib/, so re-include that folder.
 !src/lib/
 !src/lib/**
+
+data/raw/
+
+data/processed/
+
+data/raw/
+
+data/processed/
+
+/backend/.venv/
+/backend/__pycache__/

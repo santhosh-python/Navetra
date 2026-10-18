@@ -83,7 +83,7 @@ export function RecordActionDialog({ open, onClose, target, defaultAction = RECO
         <FormField id="record-action-note" label="Note (optional)" error={error ?? undefined}>
           <textarea className="textarea" value={note} onChange={(event) => setNote(event.target.value)} {...fieldAria('record-action-note', undefined, error ?? undefined)} />
         </FormField>
-        <p className="form-note">Saved to the activity log for this item for this session only. The demo does not send anything to a supplier or create an order.</p>
+        <p className="form-note">Saved to the activity log for this item for this session only. No supplier message or order is created.</p>
       </div>
     </Modal>
   );

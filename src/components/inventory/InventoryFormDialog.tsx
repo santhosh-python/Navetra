@@ -114,7 +114,7 @@ export function InventoryFormDialog({ open, onClose, item, onSaved }: InventoryF
       description={isEdit ? 'Changes update every page immediately in this browser session.' : 'Fields marked optional can be left blank.'}
       footer={
         <>
-          <span className="modal__footer-note">{errorCount > 0 ? `${errorCount} field${errorCount === 1 ? '' : 's'} need attention` : 'Saved only in this browser session (demo data).'}</span>
+          <span className="modal__footer-note">{errorCount > 0 ? `${errorCount} field${errorCount === 1 ? '' : 's'} need attention` : 'Saved only in this browser session (local synthetic data).'}</span>
           <Button onClick={onClose}>Cancel</Button>
           <Button variant="primary" onClick={handleSubmit} disabled={saving}>
             {saving ? 'Saving…' : isEdit ? 'Save changes' : 'Add item'}

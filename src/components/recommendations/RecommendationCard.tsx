@@ -164,7 +164,7 @@ export function RecommendationCard({ rank, recommendation, status, asOfDate, uni
                 </tbody>
               </table>
               <p className="text-xs text-subtle" style={{ marginTop: 8 }}>
-                Values come from the synthetic demo dataset and the thresholds in Settings.
+                Values come from the local synthetic dataset and the thresholds in Settings.
               </p>
             </div>
           )}

@@ -142,7 +142,7 @@ export function InventoryPage() {
       const deleted = await deleteItems(ids);
       setSelectedIds(new Set());
       setConfirmingDelete(false);
-      showToast(`Deleted ${deleted} ${deleted === 1 ? 'item' : 'items'} from this session. Demo data can be restored in Settings.`);
+      showToast(`Deleted ${deleted} ${deleted === 1 ? 'item' : 'items'} from this session. The original local dataset can be restored in Settings.`);
     } catch (error) {
       setActionError(error instanceof Error ? error.message : 'Deletion did not complete. Nothing was removed.');
     }
@@ -172,7 +172,7 @@ export function InventoryPage() {
     <>
       <PageHeader
         title="Inventory"
-        subtitle={`${items.length} items across ${locations.length} locations. Synthetic demo data, as of ${asOfDate}.`}
+        subtitle={`${items.length} items across ${locations.length} locations. Local synthetic dataset, as of ${asOfDate}.`}
         actions={
           <>
             <Button icon={<Upload size={15} aria-hidden="true" />} onClick={() => setImportOpen(true)}>

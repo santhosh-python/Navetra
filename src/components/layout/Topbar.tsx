@@ -40,11 +40,11 @@ export function Topbar({ onOpenMenu }: TopbarProps) {
           variant="ghost"
           size="sm"
           icon={<UserRound size={15} aria-hidden="true" />}
-          label={<span className="topbar__org-name">Demo operator</span>}
+          label={<span className="topbar__org-name">Inventory operator</span>}
           items={[
-            { id: 'account', label: 'No sign-in in this demo', onSelect: () => undefined, disabled: true },
+            { id: 'account', label: 'Sign-in is not configured', onSelect: () => undefined, disabled: true },
             { id: 'settings', label: 'Settings', icon: <Settings size={14} aria-hidden="true" />, onSelect: () => navigate('/settings') },
-            { id: 'data-source', label: 'About the demo data', icon: <Info size={14} aria-hidden="true" />, onSelect: () => navigate('/settings#data') },
+            { id: 'data-source', label: 'About the data source', icon: <Info size={14} aria-hidden="true" />, onSelect: () => navigate('/settings#data') },
           ]}
         />
         <NotificationPanel />

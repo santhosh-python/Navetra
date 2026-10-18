@@ -79,13 +79,13 @@ export function AnalyticsPage() {
     <>
       <PageHeader
         title="Analytics"
-        subtitle="Patterns across the inventory, drawn from the synthetic 30-day record, deliveries and stock-out history. Figures are demo data."
+        subtitle="Patterns across the inventory, drawn from the local 30-day record, deliveries and stock-out history. These are non-operational records."
       />
 
       <div className="analytics-kpi">
         <MetricCard label="Average incident length" value={averageDuration === null ? '—' : formatWholeDaysRemaining(averageDuration)} icon={<Timer size={16} aria-hidden="true" />} context="Mean length of logged stock-out incidents, any date" />
         <MetricCard label="Zero-stock days (30-day history)" value={totalStockOutDays} icon={<CalendarClock size={16} aria-hidden="true" />} context="Daily records with no opening stock, summed across items" />
-        <MetricCard label="Deliveries received" value={deliveryCounts.received} icon={<PackageCheck size={16} aria-hidden="true" />} context="In the demo delivery record" />
+        <MetricCard label="Deliveries received" value={deliveryCounts.received} icon={<PackageCheck size={16} aria-hidden="true" />} context="In the local delivery record" />
         <MetricCard label="Deliveries scheduled" value={deliveryCounts.scheduled} icon={<Truck size={16} aria-hidden="true" />} context="Expected arrivals, not yet received" />
       </div>
 

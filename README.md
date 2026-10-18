@@ -1,22 +1,22 @@
 # Navetra
 
-Navetra is an inventory-intelligence web app for essential supplies in clinics, hospitals, hostels, pharmacies, labs and emergency teams. It shows when each item is likely to run out, ranks what needs attention first, and suggests reorder quantities with the reasoning visible.
+Navetra is a historical inventory-shortage research prototype for the IBM Z Datathon. It uses Sierra Leone health-facility records to evaluate stockout prediction; it is not a live Indian inventory system.
 
-> **All data in this repository is synthetic demo data.** Items, suppliers, deliveries and history are invented for the demonstration. Forecasts are rule-based estimates, not machine-learning predictions, and nothing in the app places orders or contacts suppliers.
+> The routed research pages use the FastAPI dataset and model endpoints. They do not claim current stock, suppliers, purchase orders, delivery dates, lead times, costs, or procurement actions. A legacy synthetic browser demo remains available only on non-research detail/settings surfaces.
 
 ## What is included
 
 | Page | Purpose |
 | --- | --- |
-| Overview | Trend window, location and category filters, refresh; four summary cards; risk donut that filters a table; stock-out timeline; consumption vs stock; at-risk trend; "Needs attention" list with a record-supplier-contact note |
-| Inventory | Search, filters, sorting, paging, bulk actions, add/edit, CSV export, CSV import with row-by-row checks |
-| Item detail | Tabs for Overview, Forecast, Deliveries and Activity |
-| Shortage forecasts | Depletion chart, plain-language explanation, stated assumptions |
-| Recommendations | Ranked list with a disclosed priority breakdown; mark reviewed, snooze, record action |
-| What-if simulator | Demand, delivery delay, early order and transfer scenarios against a baseline; presets; save in session |
-| Analytics | Seven charts built from the same calculations |
-| Reports | Six report types, filterable by location and category, with print layout and CSV export |
-| Settings | Risk thresholds, reorder policy, locations, categories, notifications, display |
+| Overview | Historical dataset coverage, model readiness, and held-out evaluation |
+| Inventory | Paginated historical facilities and product summaries |
+| Item detail | Legacy synthetic demo detail route; not connected to the research dataset |
+| Shortage forecasts | Next-month model estimate plus observed facility-product history |
+| Recommendations | Historical product/facility evidence and explicit operational limitations |
+| What-if simulator | Transparent arithmetic scenario using only user-supplied assumptions |
+| Analytics | Historical backtest metrics and dataset summary |
+| Reports | Historical coverage, evaluation metrics, and model metadata |
+| Settings | Legacy browser-demo preferences |
 
 ## Quick start
 
@@ -31,15 +31,16 @@ Other scripts: `npm run build`, `npm run preview`, `npm test`, `npm run typechec
 
 ## Status
 
-- **Working in the browser today:** all nine pages, using synthetic demo data held in the browser. Edits, imports, notifications and scenarios last for the current session only. Settings are saved in this browser.
-- **Not built yet:** a backend API, a database, user accounts, Excel import, and real email or supplier integration. The service layer documents the planned API contract (see [docs/DATA_AND_API.md](docs/DATA_AND_API.md)), but no server exists.
+- **Working research experience:** the seven primary routes call the FastAPI historical summary, facility, product, history, forecast, backtest, health, and ML forecast endpoints. Disconnected and empty states are explicit; no invented fallback values are shown.
+- **Backend research prototype:** `backend/main.py` reads `data/processed/S2_Dhis2Data.csv`. This is not a live inventory API.
+- **Not built:** a production database, user accounts, current stock integration, supplier/order integration, or deployment artifact registry.
 - **Verified:** TypeScript typecheck, the production build and the automated test suite (see DEVELOPMENT.md for the commands and counts).
 
 ## Documentation
 
 - [DEVELOPMENT.md](DEVELOPMENT.md): setup, project layout, testing, preview and deployment notes, how to continue in VS Code
 - [docs/CALCULATIONS.md](docs/CALCULATIONS.md): every formula, rule and threshold, and what each one does and does not mean
-- [docs/DATA_AND_API.md](docs/DATA_AND_API.md): CSV import rules, persistence, demo data, and the planned backend contract
+- [docs/DATA_AND_API.md](docs/DATA_AND_API.md): historical dataset, API contracts, model pipeline, and remaining demo boundaries
 - [docs/DESIGN.md](docs/DESIGN.md): visual system, colour meaning, accessibility choices
 
 ## Licence

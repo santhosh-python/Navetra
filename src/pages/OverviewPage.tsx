@@ -101,7 +101,7 @@ export function OverviewPage() {
     <>
       <PageHeader
         title="Overview"
-        subtitle={`Stock position as of ${formatLongDate(asOfDate)} for ${settings.organizationName}. ${isDemoData ? 'Synthetic demo data.' : ''}`}
+        subtitle={`Stock position as of ${formatLongDate(asOfDate)} for ${settings.organizationName}. ${isDemoData ? 'Local synthetic dataset.' : ''}`}
         actions={
           <>
             <Button icon={<RefreshCw size={15} aria-hidden="true" />} onClick={handleRefresh} disabled={refreshing}>

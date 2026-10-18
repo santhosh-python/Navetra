@@ -121,7 +121,7 @@ export function ItemDetailPage() {
           <Badge tone="neutral">
             <Package size={12} aria-hidden="true" /> {item.supplierName}
           </Badge>
-          <span className="text-small text-muted">Synthetic demo item</span>
+          <span className="text-small text-muted">Local synthetic record</span>
         </div>
         <dl className="item-hero__facts" style={{ margin: 0 }}>
           <div>
@@ -236,7 +236,7 @@ export function ItemDetailPage() {
         <div role="tabpanel" id="panel-deliveries" aria-labelledby="tab-deliveries" className="stack-4">
           <SectionCard title="Deliveries" description="Received deliveries from the 30-day record, and any scheduled arrival.">
             {itemDeliveries.length === 0 ? (
-              <EmptyState compact title="No deliveries recorded" description="There are no received or scheduled deliveries for this item in the demo record." />
+              <EmptyState compact title="No deliveries recorded" description="There are no received or scheduled deliveries for this item in the local record." />
             ) : (
               <div className="table-wrap" style={{ border: 0, borderRadius: 0 }}>
                 <table className="table table--compact">
@@ -295,7 +295,7 @@ export function ItemDetailPage() {
         <div role="tabpanel" id="panel-activity" aria-labelledby="tab-activity">
           <SectionCard
             title="Activity"
-            description="Stock-out history from the demo record, deliveries, and edits or actions recorded in this session."
+            description="Stock-out history from the local record, deliveries, and edits or actions recorded in this session."
           >
             {itemTimeline.length === 0 ? (
               <EmptyState compact title="No activity yet" description="Edits and recorded actions appear here during this session." />
@@ -310,7 +310,7 @@ export function ItemDetailPage() {
                 ))}
               </ol>
             )}
-            <p className="card__footer">Session activity is not saved after you leave the page. The demo record is synthetic.</p>
+            <p className="card__footer">Session activity is not saved after you leave the page. The local record is synthetic.</p>
           </SectionCard>
         </div>
       )}

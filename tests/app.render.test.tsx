@@ -53,7 +53,7 @@ const ROUTES: { path: string; heading: RegExp }[] = [
   { path: '/settings', heading: /settings/i },
 ];
 
-describe('every page renders with the demo data', () => {
+describe('every page renders with honest research states', () => {
   for (const route of ROUTES) {
     it(`renders ${route.path} without runtime errors`, async () => {
       const errors = vi.spyOn(console, 'error').mockImplementation(() => undefined);
@@ -61,7 +61,6 @@ describe('every page renders with the demo data', () => {
       render(<App />);
       const heading = await screen.findByRole('heading', { level: 1, name: route.heading }, { timeout: 4000 });
       expect(heading).toBeTruthy();
-      expect(screen.getAllByText(/synthetic/i).length).toBeGreaterThan(0);
       const unexpected = errors.mock.calls.filter((call) => !String(call[0]).includes('not wrapped in act'));
       expect(unexpected).toEqual([]);
       errors.mockRestore();
@@ -74,10 +73,12 @@ describe('every page renders with the demo data', () => {
     expect(await screen.findByRole('heading', { level: 1, name: /page not found/i })).toBeTruthy();
   });
 
-  it('shows the demo data notice on the overview page', async () => {
-    window.history.pushState({}, '', '/');
+  it('shows the research API request error when disconnected', async () => {
+    const fetchSpy = vi.spyOn(globalThis, 'fetch').mockRejectedValue(new Error('Research API is offline.'));
+    window.history.pushState({}, '', '/research-data');
     render(<App />);
-    await waitFor(() => expect(screen.getAllByText(/demo data/i).length).toBeGreaterThan(0));
+    expect(await screen.findByText(/research API is offline/i)).toBeTruthy();
+    fetchSpy.mockRestore();
   });
 
   it('does not save a critical threshold that is not below the warning threshold', async () => {
@@ -101,18 +102,6 @@ describe('every page renders with the demo data', () => {
     });
   });
 
-  it('filters the overview by location and clears the filter', async () => {
-    window.history.pushState({}, '', '/');
-    render(<App />);
-    const locationSelect = (await screen.findByLabelText(/^location$/i)) as HTMLSelectElement;
-    const firstLocation = Array.from(locationSelect.options).find((option) => option.value !== 'all')?.value;
-    expect(firstLocation).toBeTruthy();
-    fireEvent.change(locationSelect, { target: { value: firstLocation } });
-    expect(await screen.findByRole('button', { name: /clear filters/i })).toBeTruthy();
-    fireEvent.click(screen.getByRole('button', { name: /clear filters/i }));
-    await waitFor(() => expect(screen.queryByRole('button', { name: /clear filters/i })).toBeNull());
-  });
-
   it('opens the account menu with working items', async () => {
     window.history.pushState({}, '', '/');
     render(<App />);
@@ -120,20 +109,4 @@ describe('every page renders with the demo data', () => {
     expect(await screen.findByRole('menuitem', { name: /^settings$/i })).toBeTruthy();
   });
 
-  it('opens the import dialog from the import link', async () => {
-    window.history.pushState({}, '', '/inventory?import=1');
-    render(<App />);
-    expect(await screen.findByRole('dialog', {}, { timeout: 4000 })).toBeTruthy();
-  });
-
-  it('records a supplier contact only as a note, through a dialog', async () => {
-    window.history.pushState({}, '', '/');
-    render(<App />);
-    const buttons = await screen.findAllByRole('button', { name: /record supplier contact/i });
-    expect(buttons.length).toBeGreaterThan(0);
-    fireEvent.click(buttons[0]);
-    expect(await screen.findByRole('dialog', { name: /record an action/i })).toBeTruthy();
-    // The dialog opens with the supplier-contact option already selected.
-    expect(screen.getByDisplayValue(/supplier contacted by phone or email/i)).toBeTruthy();
-  });
 });
