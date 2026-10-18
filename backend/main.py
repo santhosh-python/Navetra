@@ -1,4 +1,5 @@
 ﻿from functools import lru_cache
+import os
 from pathlib import Path
 
 import pandas as pd
@@ -23,6 +24,26 @@ except ImportError:
 
 ROOT = Path(__file__).resolve().parents[1]
 DATA_PATH = ROOT / "data" / "processed" / "S2_Dhis2Data.csv"
+DEFAULT_CORS_ORIGINS = (
+    "http://localhost:5173",
+    "http://127.0.0.1:5173",
+    "http://localhost:5174",
+    "http://10.23.18.223:5173",
+)
+
+
+def get_cors_origins() -> list[str]:
+    configured = os.getenv("NAVETRA_CORS_ORIGINS")
+    if configured is None:
+        return list(DEFAULT_CORS_ORIGINS)
+
+    origins = [origin.strip().rstrip("/") for origin in configured.split(",")]
+    origins = [origin for origin in origins if origin]
+    if "*" in origins:
+        raise ValueError(
+            "NAVETRA_CORS_ORIGINS must list explicit origins; '*' is not allowed."
+        )
+    return origins
 
 app = FastAPI(
     title="Navetra Historical Inventory API",
@@ -35,11 +56,7 @@ app = FastAPI(
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[
-        "http://localhost:5173",
-        "http://127.0.0.1:5173",
-        "http://localhost:5174",
-    ],
+    allow_origins=get_cors_origins(),
     allow_credentials=False,
     allow_methods=["GET"],
     allow_headers=["*"],

@@ -168,6 +168,11 @@ async function getJson<T>(path: string): Promise<T> {
     if (cause instanceof DOMException && cause.name === "AbortError") {
       throw new Error("The research API request timed out.");
     }
+    if (cause instanceof TypeError && cause.message === "Failed to fetch") {
+      throw new Error(
+        `Unable to reach the research API at ${base}. Check that it is running and allows this frontend origin.`
+      );
+    }
     if (cause instanceof Error) throw cause;
     throw new Error("Unable to read the research API response.");
   } finally {

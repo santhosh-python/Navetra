@@ -121,9 +121,11 @@ ready until `/health` reports `ready: true`.
 
 Set `VITE_RESEARCH_API_BASE_URL` to the deployed API origin when building the
 frontend. Keep this separate from `VITE_API_BASE_URL`; the latter belongs only
-to the legacy synthetic browser adapter. Configure production CORS origins in
-`backend/main.py` before exposing the API outside local development. No public
-deployment is claimed by this repository.
+to the legacy synthetic browser adapter. Configure production CORS origins with
+the backend's comma-separated `NAVETRA_CORS_ORIGINS` environment variable
+before exposing the API outside local development. Origins must be explicit;
+wildcard origins are rejected. No public deployment is claimed by this
+repository.
 
 The model-backed endpoint is `GET /research/ml-forecast?facility_id=...&product_id=...`.
 It predicts the next calendar month from the latest six consecutive observations

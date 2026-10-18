@@ -1,8 +1,9 @@
 import unittest
+from unittest.mock import patch
 
 import pandas as pd
 
-from main import get_consecutive_months
+from main import DEFAULT_CORS_ORIGINS, get_consecutive_months, get_cors_origins
 
 
 class ConsecutiveMonthTests(unittest.TestCase):
@@ -58,3 +59,23 @@ class ConsecutiveMonthTests(unittest.TestCase):
                 "2023-05-01",
             ],
         )
+
+
+class CorsOriginTests(unittest.TestCase):
+    def test_default_origins_include_local_and_lan_development_frontends(self):
+        self.assertEqual(get_cors_origins(), list(DEFAULT_CORS_ORIGINS))
+
+    def test_configured_origins_are_trimmed_and_slash_normalized(self):
+        with patch.dict(
+            "os.environ",
+            {"NAVETRA_CORS_ORIGINS": " https://navetra.example, http://localhost:5173/ "},
+        ):
+            self.assertEqual(
+                get_cors_origins(),
+                ["https://navetra.example", "http://localhost:5173"],
+            )
+
+    def test_wildcard_origin_is_rejected(self):
+        with patch.dict("os.environ", {"NAVETRA_CORS_ORIGINS": "*"}):
+            with self.assertRaisesRegex(ValueError, "explicit origins"):
+                get_cors_origins()

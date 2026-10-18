@@ -133,6 +133,12 @@ probability or an operational inventory decision.
 
 Set `VITE_RESEARCH_API_BASE_URL` in `.env.local` to the running FastAPI URL
 (for local development, `http://127.0.0.1:8000`) to load the Research Data page.
+When the browser is on another machine, use the server's reachable address
+instead of `127.0.0.1`. Configure the backend's comma-separated
+`NAVETRA_CORS_ORIGINS` environment variable with the exact frontend origins
+needed in that environment. The default includes the local Vite origins and
+`http://10.23.18.223:5173`; production deployments should set an explicit
+production frontend origin and must not use `*`.
 The seven primary research routes report real responses from the FastAPI
 summary, facilities, products, history, ML forecast, health, and backtest
 endpoints. If this variable is empty or the backend is unavailable, the UI
